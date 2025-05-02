@@ -479,3 +479,122 @@ Output
 Expected
 | machine_id | processing_time | | ---------- | --------------- | | 0 | 0.894 | | 1 | 0.995 | | 2 | 1.456 |
 
+
+6. Employee Bonus 
+
+code:
+# Write your MySQL query statement below
+
+#A LEFT JOIN returns all rows from the left table (Employee), even if there's no match in the right table (Bonus).
+
+#If there's no matching bonus, the bonus column will be NULL.
+
+# If you used INNER JOIN, you’d lose rows where the employee has no bonus.
+
+SELECT name, bonus
+FROM Employee e
+LEFT JOIN Bonus b
+ON e.empId = b.empId
+WHERE bonus < 1000 OR bonus IS NULL; #To filter only those with no bonus or small bonus
+
+
+Output :
+
+Input
+Employee =
+| empId | name | supervisor | salary | | ----- | --------- | ---------- | ------ | | 13 | Cohen | 12 | 29457 | | 10 | Xiomara | null | 62102 | | 3 | Macy | 7 | 93405 | | 31 | Laney | 16 | 92330 | | 8 | Kenia | 11 | 53902 | | 29 | Kason | 18 | 66233 | 
+View more
+Bonus =
+| empId | bonus | | ----- | ----- | | 22 | 821 | | 11 | 689 | | 25 | 1098 | | 35 | 828 | | 26 | 893 | | 33 | 760 | 
+View more
+Output
+| name | bonus | | --------- | ----- | | Xiomara | null | | Macy | null | | Laney | null | | Kason | null | | Shepherd | null | | Titan | null | 
+View more
+Expected
+| name | bonus | | --------- | ----- | | Xiomara | null | | Macy | null | | Laney | null | | Kason | null | | Shepherd | null | | Titan | null | 
+
+
+7. Students and Examinations
+
+Code : 
+# Write your MySQL query statement below
+#Since we need to pair every row in Student table paired with all subjects in Subject table
+#First we create a cartesian join between Student and Subject and using that as table we take left join with examination table
+#Group by Student id , name and subject name
+#Order by as Given condition
+SELECT s.student_id, s.student_name, sb.subject_name,count(e.subject_name) as attended_exams
+FROM Students s
+CROSS JOIN Subjects sb
+LEFT JOIN Examinations e
+ON s.student_id = e.student_id AND sb.subject_name = e.subject_name
+GROUP BY s.student_id,s.student_name,sb.subject_name
+ORDER BY s.student_id ,sb.subject_name;
+
+
+output :
+Input
+Students =
+| student_id | student_name | | ---------- | ------------ | | 1 | Alice | | 2 | Bob | | 13 | John | | 6 | Alex |
+Subjects =
+| subject_name | | ------------ | | Math | | Physics | | Programming |
+Examinations =
+| student_id | subject_name | | ---------- | ------------ | | 1 | Math | | 1 | Physics | | 1 | Programming | | 2 | Programming | | 1 | Physics | | 1 | Math | 
+View more
+Output
+| student_id | student_name | subject_name | attended_exams | | ---------- | ------------ | ------------ | -------------- | | 1 | Alice | Math | 3 | | 1 | Alice | Physics | 2 | | 1 | Alice | Programming | 1 | | 2 | Bob | Math | 1 | | 2 | Bob | Physics | 0 | | 2 | Bob | Programming | 1 | 
+View more
+Expected
+| student_id | student_name | subject_name | attended_exams | | ---------- | ------------ | ------------ | -------------- | | 1 | Alice | Math | 3 | | 1 | Alice | Physics | 2 | | 1 | Alice | Programming | 1 | | 2 | Bob | Math | 1 | | 2 | Bob | Physics | 0 | | 2 | Bob | Programming | 1 | 
+
+
+
+8. Mangers with atleast 5 direct reports
+
+code :
+# Write your MySQL query statement below
+#Since we have only one table so apply inner join
+#create one table A for id and B for managerId
+SELECT A.name
+FROM Employee A, Employee B
+WHERE A.id = B.managerId
+GROUP BY B.managerId # grouping by managerId
+HAVING count(B.managerId) >= 5 ; #considering the conditions
+
+
+output : 
+
+nput
+Employee =
+| id | name | department | managerId | | --- | ----- | ---------- | --------- | | 101 | John | A | null | | 102 | Dan | A | 101 | | 103 | James | A | 101 | | 104 | Amy | A | 101 | | 105 | Anne | A | 101 | | 106 | Ron | B | 101 |
+Output
+| name | | ---- | | John |
+Expected
+| name | | ---- | | John |
+
+
+9. Confirmation Rate
+
+
+Code : 
+# Write your MySQL query statement below
+#since we need all the user id hencw will go for left join
+# we take average if confirmed and if not it will be taken as zero
+#group by the user id of left table for multiple enter in confirmations
+SELECT A.user_id, ROUND(IFNULL(AVG(action = 'confirmed'),0),2) AS confirmation_rate
+FROM signups A
+LEFT JOIN confirmations B on A.user_id = B.user_id
+GROUP BY A.user_id;
+
+
+Output : 
+Input
+Signups =
+| user_id | time_stamp | | ------- | ------------------- | | 3 | 2020-03-21 10:16:13 | | 7 | 2020-01-04 13:57:59 | | 2 | 2020-07-29 23:09:44 | | 6 | 2020-12-09 10:39:37 |
+Confirmations =
+| user_id | time_stamp | action | | ------- | ------------------- | --------- | | 3 | 2021-01-06 03:30:46 | timeout | | 3 | 2021-07-14 14:00:00 | timeout | | 7 | 2021-06-12 11:57:29 | confirmed | | 7 | 2021-06-13 12:58:28 | confirmed | | 7 | 2021-06-14 13:59:27 | confirmed | | 2 | 2021-01-22 00:00:00 | confirmed | 
+View more
+Output
+| user_id | confirmation_rate | | ------- | ----------------- | | 3 | 0 | | 7 | 1 | | 2 | 0.5 | | 6 | 0 |
+Expected
+| user_id | confirmation_rate | | ------- | ----------------- | | 6 | 0 | | 3 | 0 | | 7 | 1 | | 2 | 0.5 |
+
